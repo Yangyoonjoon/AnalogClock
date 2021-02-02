@@ -21,6 +21,9 @@ class Clock(QObject):
         self.cpt = self.inrect.center()
         self.radius = self.inrect.width()/2
 
+        # 년,월,일 글자
+        self.txt = ''
+
         # 시그널
         self.update_signal.connect(self.parent.update)
 
@@ -78,11 +81,15 @@ class Clock(QObject):
             qp.drawLine(pt1, pt2)
 
         # 년, 월, 일
-        cpt = QPointF(self.cpt.x() - self.radius/3, self.cpt.y())
+        qp.setPen(pen0)
+        cpt = QPointF(self.radius*0.7 , self.cpt.y())
         w = 100
         h = 30
         rect = QRectF(cpt.x() - w/2, cpt.y() - h/2, w, h)
-        qp.drawRect(rect)
+        qp.drawRoundedRect(rect, 10, 10)
+        f = QFont('arial', 10)
+        qp.setFont(f)
+        qp.drawText(rect, Qt.AlignCenter, self.txt)
 
         # 초침
         deg = self.sec * 6
@@ -113,6 +120,16 @@ class Clock(QObject):
             self.hour = t.hour
             self.min = t.minute
             self.sec = t.second
+
+            if self.hour >= 12 and self.hour <= 23:
+                noon = 'PM'
+            else:
+                noon = 'AM'
+
+            # 2020.02.02 PM
+            mon = format(self.mon, '02')
+            day = format(self.day, '02')
+            self.txt = f'{self.year}.{mon}.{day} {noon}'
 
             self.update_signal.emit()
             time.sleep(0.1)
